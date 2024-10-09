@@ -325,7 +325,7 @@ awful.screen.connect_for_each_screen(function(s)
         {
             layout = wibox.layout.fixed.horizontal,
             --mykeyboardlayout,
-            --wibox.widget.systray(),
+            wibox.widget.systray(),
             mytextclock,
             s.mylayoutbox,
         }
@@ -361,6 +361,7 @@ local volume_scratch = bling.module.scratchpad {
     reapply                 = true,                   -- Whether all those properties should be reapplied on every new opening of the scratchpad (MUST BE TRUE FOR ANIMATIONS)
     dont_focus_before_close = true,                  -- When set to true, the scratchpad will be closed by the toggle function regardless of whether its focused or not. When set to false, the toggle function will first bring the scratchpad into focus and only close it on a second call
 }
+local swap1
 -- {{{ Key bindings
 globalkeys = gears.table.join(
     awful.key({ modkey, }, "s", hotkeys_popup.show_help,
@@ -372,13 +373,17 @@ globalkeys = gears.table.join(
     --awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
     --      {description = "go back", group = "tag"}),
 
-    awful.key({ modkey, }, "j",
+    awful.key({ modkey, }, "j", function() awful.client.focus.global_bydirection("left") end,
+        { description = "move focus to left", group = "client" }),
+    awful.key({ modkey, }, "k", function() awful.client.focus.global_bydirection("right") end,
+        { description = "move focus to right", group = "client" }),
+    awful.key({ modkey,"Control" }, "j",
         function()
             awful.client.focus.byidx(1)
         end,
         { description = "focus next by index", group = "client" }
     ),
-    awful.key({ modkey, }, "k",
+    awful.key({ modkey,"Control" }, "k",
         function()
             awful.client.focus.byidx(-1)
         end,
@@ -388,18 +393,45 @@ globalkeys = gears.table.join(
     --        {description = "show main menu", group = "awesome"}),
 
     -- Layout manipulation
-    awful.key({ modkey, "Shift" }, "j", function() awful.client.swap.byidx(1) end,
-        { description = "swap with next client by index", group = "client" }),
-    awful.key({ modkey, "Shift" }, "k", function() awful.client.swap.byidx(-1) end,
-        { description = "swap with previous client by index", group = "client" }),
-    awful.key({ modkey, }, "h", function() awful.screen.focus(leftscreen(awful.screen.focused {})) end,
+    awful.key({ modkey, "Shift" }, "h", function() 
+        if client.focus.screen.index==1 then
+            client.focus:move_to_screen(screen[3])
+        else
+            client.focus:move_to_screen(screen[2])
+        end
+    end,
+        { description = "move client to left screen", group = "client" }),
+    awful.key({ modkey, "Shift" }, "l", function() 
+        if client.focus.screen.index==2 then
+            client.focus:move_to_screen(screen[3])
+        else
+            client.focus:move_to_screen(screen[1])
+        end
+    end,
+        { description = "move client to right screen", group = "client" }),
+    awful.key({ modkey, }, "h", function() awful.screen.focus_bydirection("left") end,
         { description = "move focus to the left screen", group = "screen" }),
-    awful.key({ modkey, }, "l", function() awful.screen.focus(rightscreen(awful.screen.focused {})) end,
+    awful.key({ modkey, }, "l", function() awful.screen.focus_bydirection("right") end,
         { description = "move focus to the right screen", group = "screen" }),
-    awful.key({ modkey, "Shift" }, "h", function() client.focus:move_to_screen(leftscreen(awful.screen.focused {})) end,
-        { description = "move client to the left screen", group = "client" }),
-    awful.key({ modkey, "Shift" }, "l", function() client.focus:move_to_screen(rightscreen(awful.screen.focused {})) end,
-        { description = "move client to the right screen", group = "client" }),
+    awful.key({ modkey, "Shift" }, "j", function() awful.client.swap.global_bydirection("left") end,
+        { description = "swap client with the left client", group = "client" }),
+    awful.key({ modkey, "Shift" }, "k", function() awful.client.swap.global_bydirection("right") end,
+        { description = "swap client with the right client", group = "client" }),
+    awful.key({ modkey, "Shift" }, "s", function()
+            if not swap1 then
+                swap1=client.focus
+                client.focus.border_color="#00ff00"
+                naughty.notify({
+                    title=client.focus.class
+
+                })
+            else
+                naughty.notify({
+                    title=client.focus.class
+                })
+            end
+    end,
+        { description = "swap", group = "client" }),
     --awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
     --        {description = "jump to urgent client", group = "client"}),
     -- awful.key({ modkey,           }, "Tab",
@@ -420,8 +452,8 @@ globalkeys = gears.table.join(
         { description = "open a terminal scratchpad", group = "launcher" }),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
         { description = "reload awesome", group = "awesome" }),
-    awful.key({ modkey, "Shift" }, "q", awesome.quit,
-        { description = "quit awesome", group = "awesome" }),
+   --[[ awful.key({ modkey, "Shift" }, "q", awesome.quit,
+        { description = "quit awesome", group = "awesome" }),]]
     awful.key({ modkey, "Control" }, "l", function() awful.tag.incmwfact(0.02, client.focus.first_tag) end,
         { description = "increase master width factor", group = "layout" }),
     awful.key({ modkey, "Control" }, "h", function() awful.tag.incmwfact(-0.02, client.focus.first_tag) end,
@@ -477,7 +509,7 @@ clientkeys = gears.table.join(
             c:raise()
         end,
         { description = "toggle fullscreen", group = "client" }),
-    awful.key({ modkey, "Shift" }, "c", function(c) c:kill() end,
+    awful.key({ modkey, "Shift" }, "q", function(c) c:kill() end,
         { description = "close", group = "client" }),
     awful.key({ modkey, "Control" }, "space", awful.client.floating.toggle,
         { description = "toggle floating", group = "client" }),

@@ -11,12 +11,12 @@ local themes_path = gfs.get_themes_dir()
 
 local theme = {}
 
-theme.font          = "HackGen 8"
+theme.font          = "Sans 8"
 
-theme.bg_normal     = "#252525"
-theme.bg_focus      = "#252525"-- "#535d6c"
+theme.bg_normal     ="#000000"-- "#252525"
+theme.bg_focus      ="#000055" -- "#252525"-- "#535d6c"
 theme.bg_urgent     = "#ff0000"
-theme.bg_minimize   = "#444444"
+theme.bg_minimize   ="#000000"-- "#444444"
 theme.bg_systray    = theme.bg_normal
 
 theme.fg_normal     = "#aaaaaa"
@@ -102,11 +102,14 @@ theme.titlebar_maximized_button_focus_active  = themes_path.."default/titlebar/m
 --theme.wallpaper = themes_path.."default/background.png"
 theme.wallpaper=function(s)
     if s.index==1 then
-        return themes_path.."img/right.png"
+        --return themes_path.."img/right.png"
+        return "/home/mate/.config/awesome/img/right.png"
     elseif s.index==2 then
-        return themes_path.."img/left.png"
+        --return themes_path.."img/left.png"
+        return "/home/mate/.config/awesome/img/left.png"
     elseif s.index==3 then
-        return themes_path.."img/middle.png"
+        --return themes_path.."img/middle.png"
+        return "/home/mate/.config/awesome/img/middle.png"
     end
 end
 
